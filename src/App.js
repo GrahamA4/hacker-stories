@@ -84,20 +84,24 @@ function App() {
     isError: false
   });
 
-  const handleFetchStories = React.useCallback(async () => {
-    if (!searchTerm) return;
-    dispatchStories({ type: 'STORIES_FETCH_INIT' });
-    try {
-      const result = await axios.get(url).then((result) => {
-        dispatchStories({
-          type: 'STORIES_FETCH_SUCCESS',
-          payload: result.data.hits
+  const handleFetchStories = React.useCallback(
+    async () => {
+      if (!searchTerm) return;
+      dispatchStories({ type: 'STORIES_FETCH_INIT' });
+      try {
+        await axios.get(url).then((result) => {
+          dispatchStories({
+            type: 'STORIES_FETCH_SUCCESS',
+            payload: result.data.hits
+          });
         });
-      });
-    } catch {
-      dispatchStories({ type: 'STORIES_FETCH_FAILURE' });
-    }
-  }, [url]);
+      } catch {
+        dispatchStories({ type: 'STORIES_FETCH_FAILURE' });
+      }
+    },
+    [],
+    url
+  );
   React.useEffect(() => {
     handleFetchStories();
   }, [handleFetchStories]);
@@ -118,12 +122,6 @@ function App() {
     setUrl(`${API_ENDPOINT}${searchTerm}`);
     event.preventDefault();
   };
-
-  const searchedStories = stories.data.filter((story) =>
-    story.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const sumComments = React.useMemo(() => getSumComments(stories), []);
 
   return (
     <StyledContainer>
@@ -155,9 +153,6 @@ const List = React.memo(({ list, onRemoveItem }) =>
   ))
 );
 const Item = ({ item, onRemoveItem }) => {
-  function handleRemoveItem() {
-    onRemoveItem(item);
-  }
   return (
     <StyledItem>
       <StyledColumn width="40%">
@@ -166,6 +161,7 @@ const Item = ({ item, onRemoveItem }) => {
       <StyledColumn width="30%">{item.author} </StyledColumn>
       <StyledColumn width="10%">{item.num_comments} </StyledColumn>
       <StyledColumn width="10%">{item.points}</StyledColumn>
+
       <StyledColumn width="10%">
         <StyledButtonSmall
           type="button"
@@ -226,14 +222,6 @@ const InputWithLabel = ({
   );
 };
 //*****************************************************************//
-
-function getTheTruth() {
-  if (console.log('B:List')) {
-    return true;
-  } else {
-    return false;
-  }
-}
 
 // console.log(getTheTruth());
 //*****************************************************************//

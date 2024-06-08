@@ -4,28 +4,6 @@ import styles from './App.module.css';
 import styled from 'styled-components';
 import { ReactComponent as Check } from './check.svg';
 
-///////*********************************/////////
-///////********[ CUSTOM STATE ]*********////////
-///////********************************////////
-
-const useSemiPersistentState = (key, initialState) => {
-  const isMounted = React.useRef(false);
-
-  const [value, setValue] = React.useState(
-    localStorage.getItem(key) || initialState
-  );
-
-  React.useEffect(() => {
-    if (!isMounted.current) {
-      isMounted.current = true;
-    } else {
-      localStorage.setItem(key, value);
-    }
-  }, [value, key]);
-
-  return [value, setValue];
-};
-
 //*****************************************************************//
 
 ///////************************************************************//////
@@ -64,17 +42,32 @@ const storiesReducer = (state, action) => {
 ///////*********[ ANGOLIA API FOR SEARCH LIST ]*********//////////////
 ///////************************************************//////////////
 
-const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
 //*****************************************************************//
 
-const getSumComments = (stories) => {
-  // console.log('C');
-
-  return stories.data.reduce((result, value) => result + value.num_comments, 0);
-};
-
+const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
 function App() {
-  const [searchTerm, setSearchTerm] = useSemiPersistentState('search', 'react');
+  ///////*********************************/////////
+  ///////********[ CUSTOM STATE ]*********////////
+  ///////********************************////////
+
+  const useSemiPersistentState = (key, initialState) => {
+    const isMounted = React.useRef(false);
+
+    const [value, setValue] = React.useState(
+      localStorage.getItem(key) || initialState
+    );
+
+    React.useEffect(() => {
+      if (!isMounted.current) {
+        isMounted.current = true;
+      } else {
+        localStorage.setItem(key, value);
+      }
+    }, [value, key]);
+
+    return [value, setValue];
+  };
+  const [searchTerm, setSearchTerm] = useSemiPersistentState(`search`, `react`);
 
   const [url, setUrl] = React.useState(`${API_ENDPOINT}${searchTerm}`);
 
@@ -99,8 +92,8 @@ function App() {
         dispatchStories({ type: 'STORIES_FETCH_FAILURE' });
       }
     },
-    [],
-    url
+    [url],
+    [searchTerm]
   );
   React.useEffect(() => {
     handleFetchStories();

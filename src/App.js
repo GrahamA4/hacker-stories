@@ -67,34 +67,29 @@ function App() {
 
     return [value, setValue];
   };
-  const [searchTerm, setSearchTerm] = useSemiPersistentState(`search`, `react`);
 
+  const [searchTerm, setSearchTerm] = useSemiPersistentState(`search`, `react`);
   const [url, setUrl] = React.useState(`${API_ENDPOINT}${searchTerm}`);
 
+  const handleFetchStories = React.useCallback(async () => {
+    if (!searchTerm) return dispatchStories({ type: 'STORIES_FETCH_INIT' });
+    try {
+      await axios.get(url).then((result) =>
+        dispatchStories({
+          type: 'STORIES_FETCH_SUCCESS',
+          payload: result.data.hits
+        })
+      );
+    } catch {
+      dispatchStories({ type: 'STORIES_FETCH_FAILURE' });
+    }
+  }, [url, searchTerm]);
   const [stories, dispatchStories] = React.useReducer(storiesReducer, {
     data: [],
     isLoading: false,
     isError: false
   });
 
-  const handleFetchStories = React.useCallback(
-    async () => {
-      if (!searchTerm) return;
-      dispatchStories({ type: 'STORIES_FETCH_INIT' });
-      try {
-        await axios.get(url).then((result) => {
-          dispatchStories({
-            type: 'STORIES_FETCH_SUCCESS',
-            payload: result.data.hits
-          });
-        });
-      } catch {
-        dispatchStories({ type: 'STORIES_FETCH_FAILURE' });
-      }
-    },
-    [url],
-    [searchTerm]
-  );
   React.useEffect(() => {
     handleFetchStories();
   }, [handleFetchStories]);

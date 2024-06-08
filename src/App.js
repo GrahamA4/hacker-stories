@@ -1,7 +1,6 @@
 import React from 'react';
 import axios from 'axios';
 import styles from './App.module.css';
-import cs from 'classnames';
 import styled from 'styled-components';
 import { ReactComponent as Check } from './check.svg';
 

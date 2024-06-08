@@ -26,6 +26,7 @@ const useSemiPersistentState = (key, initialState) => {
 
   return [value, setValue];
 };
+
 //*****************************************************************//
 
 ///////************************************************************//////
@@ -74,7 +75,7 @@ const getSumComments = (stories) => {
 };
 
 function App() {
-  const [searchTerm, setSearchTerm] = useSemiPersistentState('search', 'React');
+  const [searchTerm, setSearchTerm] = useSemiPersistentState('search', 'react');
 
   const [url, setUrl] = React.useState(`${API_ENDPOINT}${searchTerm}`);
 
